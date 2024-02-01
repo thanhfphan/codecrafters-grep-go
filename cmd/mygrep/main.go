@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 // Usage: echo <input_text> | your_grep.sh -E <pattern>
@@ -41,14 +42,26 @@ func matchLine(line []byte, pattern string) (bool, error) {
 	// }
 
 	var ok bool
-
 	switch pattern {
 	case "\\d":
 		ok = isHasDigit(line)
 	case "\\w":
 		ok = isHasDigit(line) || isHasCharacter(line) || containChar(line, '_')
 	default:
-		ok = bytes.ContainsAny(line, pattern)
+		if strings.HasPrefix(pattern, "[") && strings.HasSuffix(pattern, "]") {
+			newPattern := strings.TrimPrefix(pattern, "[")
+			newPattern = strings.TrimSuffix(pattern, "]")
+			for _, c := range []byte(newPattern) {
+				if has := containChar(line, c); has {
+					return true, nil
+				}
+			}
+
+			return false, nil
+		} else {
+			ok = bytes.ContainsAny(line, pattern)
+		}
+
 	}
 
 	return ok, nil
