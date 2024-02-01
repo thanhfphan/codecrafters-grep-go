@@ -58,6 +58,17 @@ func matchLine(line []byte, pattern string) (bool, error) {
 			}
 
 			return false, nil
+		} else if strings.HasPrefix(pattern, "[^") && strings.HasSuffix(pattern, "]") {
+			newPattern := strings.TrimPrefix(pattern, "[^")
+			newPattern = strings.TrimSuffix(pattern, "]")
+
+			for _, c := range []byte(newPattern) {
+				if has := containChar(line, c); has {
+					return false, nil
+				}
+			}
+
+			return true, nil
 		} else {
 			ok = bytes.ContainsAny(line, pattern)
 		}
