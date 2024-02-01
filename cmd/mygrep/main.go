@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"unicode/utf8"
 )
 
 // Usage: echo <input_text> | your_grep.sh -E <pattern>
@@ -37,13 +36,27 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	if utf8.RuneCountInString(pattern) != 1 {
-		return false, fmt.Errorf("unsupported pattern: %q", pattern)
-	}
+	// if utf8.RuneCountInString(pattern) != 1 {
+	// 	return false, fmt.Errorf("unsupported pattern: %q", pattern)
+	// }
 
 	var ok bool
 
-	ok = bytes.ContainsAny(line, pattern)
+	switch pattern {
+	case "\\d":
+		ok = isDigit(line)
+	default:
+		ok = bytes.ContainsAny(line, pattern)
+	}
 
 	return ok, nil
+}
+
+func isDigit(line []byte) bool {
+	for _, c := range line {
+		if '0' <= c && c <= '9' {
+			return true
+		}
+	}
+	return false
 }
