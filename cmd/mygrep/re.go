@@ -42,21 +42,25 @@ func (r *RE) matchhere(posp, postext int) bool {
 	if posp >= len(r.pattern) {
 		return true
 	}
-	if postext >= len(r.text) {
-		return false
-	}
-
-	// fmt.Printf("posp: %d, postext: %d\n", posp, postext)
 
 	if string(r.pattern[posp]) == "\\" {
+		if postext >= len(r.text) {
+			return false
+		}
 		return r.matchhere(posp+1, postext)
 	} else if r.pattern[posp] == 'd' && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
+		if postext >= len(r.text) {
+			return false
+		}
 		if '0' <= r.text[postext] && r.text[postext] <= '9' {
 			return r.matchhere(posp+1, postext+1)
 		}
 
 		return false
 	} else if r.pattern[posp] == 'w' && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
+		if postext >= len(r.text) {
+			return false
+		}
 		if ('0' <= r.text[postext] && r.text[postext] <= '9') ||
 			('a' <= r.text[postext] && r.text[postext] <= 'z') ||
 			('A' <= r.text[postext] && r.text[postext] <= 'Z') ||
@@ -65,9 +69,15 @@ func (r *RE) matchhere(posp, postext int) bool {
 		}
 
 		return false
+	} else if r.pattern[posp] == '$' && posp+1 == len(r.pattern) {
+		// fmt.Printf("posp: %d, postext: %d\n", posp, postext)
+		return postext == len(r.text)
 	} else {
+		if postext >= len(r.text) {
+			return false
+		}
+
 		if r.pattern[posp] == r.text[postext] {
-			// fmt.Println("match char: ", string(r.pattern[posp]), " - ", string(r.text[postext]))
 			return r.matchhere(posp+1, postext+1)
 		}
 	}
