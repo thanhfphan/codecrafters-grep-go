@@ -22,6 +22,12 @@ func NewRE(pattern string, text []byte) *RE {
 }
 
 func (r *RE) IsMatch() bool {
+	if len(r.pattern) == 0 {
+		return true
+	}
+	if r.pattern[0] == '^' {
+		return r.matchhere(1, 0)
+	}
 
 	for i := 0; i < len(r.text); i++ {
 		if r.matchhere(0, i) {

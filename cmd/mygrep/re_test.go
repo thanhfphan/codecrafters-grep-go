@@ -50,6 +50,16 @@ func Test_RE(t *testing.T) {
 			text:    "sally has 3 apples",
 			expect:  true,
 		},
+		{
+			pattern: "^log",
+			text:    "log",
+			expect:  true,
+		},
+		{
+			pattern: "^log",
+			text:    "dlog",
+			expect:  false,
+		},
 	}
 
 	for _, tc := range tcs {
