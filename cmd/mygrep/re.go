@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strings"
 )
 
 var (
@@ -52,6 +53,8 @@ func (r *RE) matchhere(posp, postext int) bool {
 		return r.matchplus(r.pattern[posp], posp+2, postext)
 	} else if posp+1 < len(r.pattern) && r.pattern[posp+1] == '?' {
 		return r.matchqmark(r.pattern[posp], posp+2, postext)
+	} else if r.pattern[posp] == '(' {
+		return r.alternation(posp, postext)
 	} else if r.pattern[posp] == 'd' && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
 		if postext >= len(r.text) {
 			return false
@@ -83,6 +86,34 @@ func (r *RE) matchhere(posp, postext int) bool {
 
 		if r.pattern[posp] == r.text[postext] || r.pattern[posp] == '.' {
 			return r.matchhere(posp+1, postext+1)
+		}
+	}
+
+	return false
+}
+
+func (r *RE) alternation(posp, postext int) bool {
+	nidx := strings.IndexByte(r.pattern[posp:], ')')
+	if nidx == -1 {
+		return false
+	}
+
+	group := r.pattern[posp+1 : nidx]
+	parts := strings.Split(group, "|")
+	if len(parts) != 2 {
+		return false
+	}
+
+	remaintext := string(r.text[postext:])
+	if strings.HasPrefix(remaintext, parts[0]) {
+		if r.matchhere(nidx+1, postext+len(parts[0])) {
+			return true
+		}
+	}
+
+	if strings.HasPrefix(remaintext, parts[1]) {
+		if r.matchhere(nidx+1, postext+len(parts[1])) {
+			return true
 		}
 	}
 

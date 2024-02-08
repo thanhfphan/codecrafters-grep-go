@@ -95,6 +95,16 @@ func Test_RE(t *testing.T) {
 			text:    "cog",
 			expect:  false,
 		},
+		{
+			pattern: "(cat|dog)",
+			text:    "cat",
+			expect:  true,
+		},
+		{
+			pattern: "(cat|dog)",
+			text:    "dog",
+			expect:  true,
+		},
 	}
 
 	for _, tc := range tcs {
