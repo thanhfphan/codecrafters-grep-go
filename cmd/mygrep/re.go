@@ -98,11 +98,15 @@ func (r *RE) alternation(posp, postext int) bool {
 		return false
 	}
 
+	nidx += posp
+
 	group := r.pattern[posp+1 : nidx]
 	parts := strings.Split(group, "|")
 	if len(parts) != 2 {
 		return false
 	}
+
+	// fmt.Println("group: ", group, " nidx: ", nidx)
 
 	remaintext := string(r.text[postext:])
 	if strings.HasPrefix(remaintext, parts[0]) {
