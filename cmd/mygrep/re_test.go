@@ -76,6 +76,11 @@ func Test_RE(t *testing.T) {
 			expect:  true,
 		},
 		{
+			pattern: "ca+t",
+			text:    "caaats",
+			expect:  true,
+		},
+		{
 			pattern: "dogs?",
 			text:    "dogs",
 			expect:  true,
