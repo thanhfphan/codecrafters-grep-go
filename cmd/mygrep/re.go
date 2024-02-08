@@ -81,7 +81,7 @@ func (r *RE) matchhere(posp, postext int) bool {
 			return false
 		}
 
-		if r.pattern[posp] == r.text[postext] {
+		if r.pattern[posp] == r.text[postext] || r.pattern[posp] == '.' {
 			return r.matchhere(posp+1, postext+1)
 		}
 	}
@@ -92,7 +92,7 @@ func (r *RE) matchhere(posp, postext int) bool {
 func (r *RE) matchqmark(c byte, posp, postext int) bool {
 	cmatch := 0
 	for i := postext; i < len(r.text); i++ {
-		if r.text[i] != c {
+		if r.text[i] != c && r.pattern[i] != '.' {
 			break
 		}
 		cmatch++
@@ -104,7 +104,7 @@ func (r *RE) matchqmark(c byte, posp, postext int) bool {
 func (r *RE) matchplus(c byte, posp, postext int) bool {
 	cmatch := 0
 	for i := postext; i < len(r.text); i++ {
-		if r.text[i] != c {
+		if r.text[i] != c && r.pattern[i] != '.' {
 			break
 		}
 		cmatch++
