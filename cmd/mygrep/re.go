@@ -50,6 +50,8 @@ func (r *RE) matchhere(posp, postext int) bool {
 		return r.matchhere(posp+1, postext)
 	} else if posp+1 < len(r.pattern) && r.pattern[posp+1] == '+' {
 		return r.matchplus(r.pattern[posp], posp+2, postext)
+	} else if posp+1 < len(r.pattern) && r.pattern[posp+1] == '?' {
+		return r.matchqmark(r.pattern[posp], posp+2, postext)
 	} else if r.pattern[posp] == 'd' && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
 		if postext >= len(r.text) {
 			return false
@@ -87,9 +89,20 @@ func (r *RE) matchhere(posp, postext int) bool {
 	return false
 }
 
+func (r *RE) matchqmark(c byte, posp, postext int) bool {
+	cmatch := 0
+	for i := postext; i < len(r.text); i++ {
+		if r.text[i] != c {
+			break
+		}
+		cmatch++
+	}
+
+	return r.matchhere(posp, postext+cmatch)
+}
+
 func (r *RE) matchplus(c byte, posp, postext int) bool {
 	cmatch := 0
-
 	for i := postext; i < len(r.text); i++ {
 		if r.text[i] != c {
 			break
