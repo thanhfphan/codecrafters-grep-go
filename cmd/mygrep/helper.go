@@ -30,5 +30,6 @@ func isHasDigit(line []byte) bool {
 			return true
 		}
 	}
+
 	return false
 }

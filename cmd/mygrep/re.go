@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ var (
 type RE struct {
 	pattern string
 	text    []byte
+	groups  []string
 }
 
 func NewRE(pattern string, text []byte) *RE {
@@ -44,7 +46,9 @@ func (r *RE) matchhere(posp, postext int) bool {
 		return true
 	}
 
-	if string(r.pattern[posp]) == "\\" {
+	if posp+1 < len(r.pattern) && string(r.pattern[posp]) == "\\" && isHasDigit([]byte{r.pattern[posp+1]}) {
+		return r.matchSingleBackreference(posp, postext)
+	} else if string(r.pattern[posp]) == "\\" {
 		if postext >= len(r.text) {
 			return false
 		}
@@ -91,6 +95,27 @@ func (r *RE) matchhere(posp, postext int) bool {
 
 	return false
 }
+func (r *RE) matchSingleBackreference(posp, postext int) bool {
+	idxDigit := posp + 1
+	n, _ := strconv.Atoi(string(r.pattern[idxDigit]))
+	group := r.groups[n-1]
+
+	// fmt.Println("group: ", group, " IdxDigit: ", idxDigit)
+
+	r.groups = append(r.groups, group)
+	parts := strings.Split(group, "|")
+
+	remaintext := string(r.text[postext:])
+	for _, part := range parts {
+		if strings.HasPrefix(remaintext, part) {
+			if r.matchhere(idxDigit+1, postext+len(part)) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
 
 func (r *RE) alternation(posp, postext int) bool {
 	nidx := strings.IndexByte(r.pattern[posp:], ')')
@@ -101,23 +126,17 @@ func (r *RE) alternation(posp, postext int) bool {
 	nidx += posp
 
 	group := r.pattern[posp+1 : nidx]
+	r.groups = append(r.groups, group)
 	parts := strings.Split(group, "|")
-	if len(parts) != 2 {
-		return false
-	}
 
 	// fmt.Println("group: ", group, " nidx: ", nidx)
 
 	remaintext := string(r.text[postext:])
-	if strings.HasPrefix(remaintext, parts[0]) {
-		if r.matchhere(nidx+1, postext+len(parts[0])) {
-			return true
-		}
-	}
-
-	if strings.HasPrefix(remaintext, parts[1]) {
-		if r.matchhere(nidx+1, postext+len(parts[1])) {
-			return true
+	for _, part := range parts {
+		if strings.HasPrefix(remaintext, part) {
+			if r.matchhere(nidx+1, postext+len(part)) {
+				return true
+			}
 		}
 	}
 
