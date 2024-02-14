@@ -11,42 +11,42 @@ func Test_RE(t *testing.T) {
 		expect  bool
 	}{
 		{
-			pattern: "\\d apple",
+			pattern: `\d apple`,
 			text:    "1 apple",
 			expect:  true,
 		},
 		{
-			pattern: "\\d apple",
+			pattern: `\d apple`,
 			text:    "1 orange",
 			expect:  false,
 		},
 		{
-			pattern: "\\d\\d\\d apple",
+			pattern: `\d\d\d apple`,
 			text:    "100 apple",
 			expect:  true,
 		},
 		{
-			pattern: "\\d\\d\\d apple",
+			pattern: `\d\d\d apple`,
 			text:    "1 orange",
 			expect:  false,
 		},
 		{
-			pattern: "\\d \\w\\w\\ws",
+			pattern: `\d \w\w\ws`,
 			text:    "3 dogs",
 			expect:  true,
 		},
 		{
-			pattern: "\\d \\w\\w\\ws",
+			pattern: `\d \w\w\ws`,
 			text:    "4 cats",
 			expect:  true,
 		},
 		{
-			pattern: "\\d \\w\\w\\ws",
+			pattern: `\d \w\w\ws`,
 			text:    "1 dog",
 			expect:  false,
 		},
 		{
-			pattern: "\\d apple",
+			pattern: `\d apple`,
 			text:    "sally has 3 apples",
 			expect:  true,
 		},
@@ -111,13 +111,18 @@ func Test_RE(t *testing.T) {
 			expect:  true,
 		},
 		{
-			pattern: "(cat) and \\1",
+			pattern: `(cat) and \1`,
 			text:    "cat and cat",
 			expect:  true,
 		},
 		{
-			pattern: "(cat) and \\1",
+			pattern: `(cat) and \1`,
 			text:    "cat and dog",
+			expect:  false,
+		},
+		{
+			pattern: `(\w\w\w\w \d\d\d) is doing \1 times`,
+			text:    "grep 101 is doing grep 101 times",
 			expect:  false,
 		},
 	}

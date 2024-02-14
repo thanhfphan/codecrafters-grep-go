@@ -33,3 +33,11 @@ func isHasDigit(line []byte) bool {
 
 	return false
 }
+
+func isDigit(c byte) bool {
+	if '0' <= c && c <= '9' {
+		return true
+	}
+
+	return false
+}

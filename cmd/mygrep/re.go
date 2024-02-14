@@ -46,9 +46,7 @@ func (r *RE) matchhere(posp, postext int) bool {
 		return true
 	}
 
-	if posp+1 < len(r.pattern) && string(r.pattern[posp]) == "\\" && isHasDigit([]byte{r.pattern[posp+1]}) {
-		return r.matchSingleBackreference(posp, postext)
-	} else if string(r.pattern[posp]) == "\\" {
+	if string(r.pattern[posp]) == "\\" {
 		if postext >= len(r.text) {
 			return false
 		}
@@ -68,6 +66,8 @@ func (r *RE) matchhere(posp, postext int) bool {
 		}
 
 		return false
+	} else if isDigit(r.pattern[posp]) && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
+		return r.matchSingleBackreference(posp, postext)
 	} else if r.pattern[posp] == 'w' && posp >= 1 && string(r.pattern[posp-1]) == "\\" {
 		if postext >= len(r.text) {
 			return false
@@ -96,7 +96,7 @@ func (r *RE) matchhere(posp, postext int) bool {
 	return false
 }
 func (r *RE) matchSingleBackreference(posp, postext int) bool {
-	idxDigit := posp + 1
+	idxDigit := posp
 	n, _ := strconv.Atoi(string(r.pattern[idxDigit]))
 	group := r.groups[n-1]
 
@@ -107,7 +107,8 @@ func (r *RE) matchSingleBackreference(posp, postext int) bool {
 
 	remaintext := string(r.text[postext:])
 	for _, part := range parts {
-		if strings.HasPrefix(remaintext, part) {
+		newRE := NewRE(part, []byte(remaintext))
+		if newRE.IsMatch() {
 			if r.matchhere(idxDigit+1, postext+len(part)) {
 				return true
 			}
