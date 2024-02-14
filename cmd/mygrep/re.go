@@ -100,16 +100,15 @@ func (r *RE) matchSingleBackreference(posp, postext int) bool {
 	n, _ := strconv.Atoi(string(r.pattern[idxDigit]))
 	group := r.groups[n-1]
 
-	// fmt.Println("group: ", group, " IdxDigit: ", idxDigit)
-
 	r.groups = append(r.groups, group)
 	parts := strings.Split(group, "|")
 
 	remaintext := string(r.text[postext:])
 	for _, part := range parts {
 		newRE := NewRE(part, []byte(remaintext))
+		tmp := strings.ReplaceAll(part, "\\", "") // FIXME: temporary hack
 		if newRE.IsMatch() {
-			if r.matchhere(idxDigit+1, postext+len(part)) {
+			if r.matchhere(idxDigit+1, postext+len(tmp)) {
 				return true
 			}
 		}
@@ -130,14 +129,12 @@ func (r *RE) alternation(posp, postext int) bool {
 	r.groups = append(r.groups, group)
 	parts := strings.Split(group, "|")
 
-	// fmt.Println("group: ", group, " nidx: ", nidx)
-
 	remaintext := string(r.text[postext:])
 	for _, part := range parts {
-		if strings.HasPrefix(remaintext, part) {
-			if r.matchhere(nidx+1, postext+len(part)) {
-				return true
-			}
+		newRE := NewRE(part, []byte(remaintext))
+		tmp := strings.ReplaceAll(part, "\\", "") // FIXME: hack
+		if newRE.IsMatch() {
+			return r.matchhere(nidx+1, postext+len(tmp))
 		}
 	}
 

@@ -123,7 +123,7 @@ func Test_RE(t *testing.T) {
 		{
 			pattern: `(\w\w\w\w \d\d\d) is doing \1 times`,
 			text:    "grep 101 is doing grep 101 times",
-			expect:  false,
+			expect:  true,
 		},
 	}
 
